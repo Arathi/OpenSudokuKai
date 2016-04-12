@@ -8,7 +8,7 @@ android {
         applicationId "cz.romario.opensudoku"
         minSdkVersion 3
         targetSdkVersion 4
-        versionName "1.2.0"
+        versionName "1.2.1-SNAPSHOT"
     }
 
     buildTypes {
