@@ -1,2 +1,7 @@
-OpenSudoku/bin/
-OpenSudoku/gen/
+.gradle/
+.idea/
+*.iml
+build/
+app/build/
+import-summary.txt
+local.properties
