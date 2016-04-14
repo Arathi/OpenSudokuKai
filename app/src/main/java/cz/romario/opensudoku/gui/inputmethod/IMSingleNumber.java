@@ -46,6 +46,7 @@ import cz.romario.opensudoku.gui.inputmethod.IMControlPanelStatePersister.StateB
  * in the sidebar, user selects one number and then fill values by tapping the cells.
  *
  * @author romario
+ * @author Arathi
  */
 public class IMSingleNumber extends InputMethod {
 
@@ -155,8 +156,8 @@ public class IMSingleNumber extends InputMethod {
 		@Override
 		public void onClick(View v) {
 			mSelectedNumber = (Integer) v.getTag();
-
 			update();
+			mControlPanel.getBoard().postInvalidate();
 		}
 	};
 
@@ -228,6 +229,8 @@ public class IMSingleNumber extends InputMethod {
 				}
 			}
 		}, 100);
+
+
 	}
 
 	@Override
@@ -282,6 +285,10 @@ public class IMSingleNumber extends InputMethod {
 		if (isInputMethodViewCreated()) {
 			update();
 		}
+	}
+
+	public int getSelectedNumber() {
+		return mSelectedNumber;
 	}
 
 }

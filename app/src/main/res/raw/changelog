@@ -3,8 +3,17 @@
 <style type="text/css">
 	body {font-size: smaller;}
 </style>
+<meta charset="utf-8">
 </head>
 <body>
+<b>1.2.1</b>
+<ul>
+<li>在单一数字模式下可以用红线标出不能填当前数字的格子</li>
+</ul>
+<b>1.2.0</b>
+<ul>
+<li>优化了中文界面上的文字</li>
+</ul>
 <b>1.1.5</b>
 <ul>
 <li>Fixes crashing on Android 3 (issue #148).</li>

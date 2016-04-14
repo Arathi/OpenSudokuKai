@@ -34,6 +34,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -44,6 +45,7 @@ import android.view.View;
  * @author romario
  */
 public class SudokuBoardView extends View {
+	private static String TAG = SudokuBoardView.class.toString();
 
 	public static final int DEFAULT_BOARD_SIZE = 100;
 
@@ -52,6 +54,10 @@ public class SudokuBoardView extends View {
 	 * alpha channel set to 0 => that means it is completely transparent).
 	 */
 	private static final int NO_COLOR = 0;
+
+	private static final int DISABLE_MARK_TYPE_HORIZONTAL = 1;
+	private static final int DISABLE_MARK_TYPE_VERTICAL = 2;
+	private static final int DISABLE_MARK_TYPE_CROSS = 4;
 
 	private float mCellWidth;
 	private float mCellHeight;
@@ -86,8 +92,12 @@ public class SudokuBoardView extends View {
 
 	private Paint mCellValueInvalidPaint;
 
+	private SudokuPlayActivity mPlayActivity;
+	private Paint mDisabledMarkPaint;
+
 	public SudokuBoardView(Context context) {
 		this(context, null);
+		setPlayActivity(context);
 	}
 
 	//	public SudokuBoardView(Context context, AttributeSet attrs) {
@@ -118,6 +128,9 @@ public class SudokuBoardView extends View {
 		mCellNotePaint.setAntiAlias(true);
 		mCellValueInvalidPaint.setColor(Color.RED);
 
+		mDisabledMarkPaint = new Paint();
+		mDisabledMarkPaint.setColor(Color.RED);
+
 		TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SudokuBoardView/*, defStyle, 0*/);
 
 		setLineColor(a.getColor(R.styleable.SudokuBoardView_lineColor, Color.BLACK));
@@ -132,6 +145,8 @@ public class SudokuBoardView extends View {
 		setBackgroundColorSelected(a.getColor(R.styleable.SudokuBoardView_backgroundColorSelected, Color.YELLOW));
 
 		a.recycle();
+
+		setPlayActivity(context);
 	}
 
 	public int getLineColor() {
@@ -522,6 +537,65 @@ public class SudokuBoardView extends View {
 			canvas.drawRect(paddingLeft, y - sectorLineWidth1, width, y + sectorLineWidth2, mSectorLinePaint);
 		}
 
+		//TODO 画红线
+		if (mPlayActivity != null && mPlayActivity.isSingleNumberMode()) {
+			int selectedNumber = mPlayActivity.getSelectedNumber();
+			for (int y=0; y<CellCollection.SUDOKU_SIZE; y++) {
+				for (int x=0; x<CellCollection.SUDOKU_SIZE; x++) {
+					Cell cell = mCells.getCell(y, x);
+					if (cell.getValue() == selectedNumber) {
+						drawDisabledMarks(canvas, x, y);
+						//drawDisabledMark(canvas, x, y, DISABLE_MARK_TYPE_CROSS);
+					}
+				}
+			}
+		}
+	}
+
+	private void drawDisabledMarks(Canvas canvas, int selectNumberX, int selectNumberY) {
+		//left
+		for (int x=selectNumberX-1; x>=0; x--) {
+			drawDisabledMark(canvas, x, selectNumberY, DISABLE_MARK_TYPE_HORIZONTAL);
+		}
+		//right
+		for (int x=selectNumberX+1; x<CellCollection.SUDOKU_SIZE; x++) {
+			drawDisabledMark(canvas, x, selectNumberY, DISABLE_MARK_TYPE_HORIZONTAL);
+		}
+		//up
+		for (int y=selectNumberY-1; y>=0; y--) {
+			drawDisabledMark(canvas, selectNumberX, y, DISABLE_MARK_TYPE_VERTICAL);
+		}
+		//down
+		for (int y=selectNumberY+1; y<CellCollection.SUDOKU_SIZE; y++) {
+			drawDisabledMark(canvas, selectNumberX, y, DISABLE_MARK_TYPE_VERTICAL);
+		}
+		//当前九宫格
+		int startX = selectNumberX / 3 * 3;
+		int startY = selectNumberY / 3 * 3;
+		for (int y = startY; y < startY+3; y++) {
+			for (int x=startX; x < startX+3; x++) {
+				drawDisabledMark(canvas, x, y, DISABLE_MARK_TYPE_CROSS);
+			}
+		}
+	}
+
+	private void drawDisabledMark(Canvas canvas, int x, int y, int type) {
+		Cell cell = mCells.getCell(y, x);
+		if (cell.getValue()!=0) return;
+		float top = mCellHeight * y;
+		float left = mCellWidth * x;
+		float right = mCellWidth * (x+1);
+		float bottom = mCellHeight * (y+1);
+		if (type == DISABLE_MARK_TYPE_HORIZONTAL) {
+			canvas.drawLine(left, top+mCellHeight/2, right, top+mCellHeight/2, mDisabledMarkPaint);
+		}
+		else if (type == DISABLE_MARK_TYPE_VERTICAL) {
+			canvas.drawLine(left+mCellWidth/2, top, left+mCellWidth/2, bottom, mDisabledMarkPaint);
+		}
+		else if (type == DISABLE_MARK_TYPE_CROSS) {
+			canvas.drawLine(left, top, right, bottom, mDisabledMarkPaint);
+			canvas.drawLine(right, top, left, bottom, mDisabledMarkPaint);
+		}
 	}
 
 	@Override
@@ -749,5 +823,19 @@ public class SudokuBoardView extends View {
 //		
 //		return modeString;
 //	}
+
+	/**
+	 * 设置playActivity
+	 *
+	 * @param context 父容器，实际类型可能为SudokuPlayActivity的Context
+	 */
+	private void setPlayActivity(Context context) {
+		if (context instanceof SudokuPlayActivity) {
+			this.mPlayActivity = (SudokuPlayActivity) context;
+		}
+		else {
+			this.mPlayActivity = null;
+		}
+	}
 
 }

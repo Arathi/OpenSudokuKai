@@ -462,6 +462,7 @@ public class SudokuPlayActivity extends Activity {
 
 	}
 
+
 	// This class implements the game clock.  All it does is update the
 	// status each tick.
 	private final class GameTimer extends Timer {
@@ -478,5 +479,13 @@ public class SudokuPlayActivity extends Activity {
 			return false;
 		}
 
+	}
+
+	public boolean isSingleNumberMode() {
+		return mIMControlPanel.getActiveMethodIndex() == IMControlPanel.INPUT_METHOD_SINGLE_NUMBER;
+	}
+
+	public int getSelectedNumber() {
+		return mIMSingleNumber.getSelectedNumber();
 	}
 }

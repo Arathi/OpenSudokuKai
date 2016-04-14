@@ -144,6 +144,8 @@ public class IMControlPanel extends LinearLayout {
 				mHintsQueue.showOneTimeHint(activeMethod.getInputMethodName(), activeMethod.getNameResID(), activeMethod.getHelpResID());
 			}
 		}
+
+		mBoard.postInvalidate();
 	}
 
 	public void activateNextInputMethod() {
@@ -319,5 +321,8 @@ public class IMControlPanel extends LinearLayout {
 //    	
 //    }
 
+	public View getBoard() {
+		return mBoard;
+	}
 
 }
